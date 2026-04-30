@@ -1,0 +1,55 @@
+services:
+  redis:
+    image: redis:alpine
+    container_name: redis_db
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - rnaep-network
+  inventory:
+    build: ./inventory
+    container_name: inventory_service
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    depends_on:
+      - redis
+    networks:
+      - rnaep-network
+  payment:
+    build: ./payment
+    container_name: payment_service
+    ports:
+      - "8001:8000" 
+    environment:
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - INVENTORY_URL=${INVENTORY_URL}
+      - FRONTEND_URL=${FRONTEND_URL}
+    depends_on:
+      - redis
+      - inventory
+    networks:
+      - rnaep-network
+  notification:
+    build: ./notification
+    container_name: notification_service
+    environment:
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    depends_on:
+      - redis
+    networks:
+      - rnaep-network
+networks:
+  rnaep-network:
+    driver: bridge
+volumes:
+  redis_data:

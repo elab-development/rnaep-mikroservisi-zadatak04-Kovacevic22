@@ -4,12 +4,14 @@ from redis_om import HashModel, NotFoundError
 import httpx  # Modernija zamena za requests
 import asyncio
 from database import redis # Koristi .env iz database.py 
+from config import settings
+
 
 app = FastAPI(title="Order Service")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=['http://localhost:3000'],
+    allow_origins=[settings.frontend_url],  # Dozvoljava samo frontend aplikaciji da pristupi API-ju
     allow_methods=['*'],
     allow_headers=['*']
 )
@@ -36,7 +38,7 @@ async def get_order(pk: str):
 async def create_order(body: dict, background_tasks: BackgroundTasks):
     # Asinhroni poziv ka Inventory servisu
     async with httpx.AsyncClient() as client:
-        response = await client.get(f'http://localhost:8000/products/{body["id"]}')
+        response = await client.get(f'{settings.inventory_url}/products/{body["id"]}')
         if response.status_code != 200:
             raise HTTPException(status_code=400, detail="Product not found in Inventory")
         product = response.json()
