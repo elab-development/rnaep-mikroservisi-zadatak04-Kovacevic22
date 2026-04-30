@@ -1,4 +1,2 @@
-fastapi==0.136.1
 pydantic_settings==2.14.0
 redis_om==1.1.0
-uvicorn

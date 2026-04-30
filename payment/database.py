@@ -1,12 +1,10 @@
 import os
-from dotenv import load_dotenv
 from redis_om import get_redis_connection
-
-load_dotenv()
+from config import settings
 
 redis = get_redis_connection(
-    host=os.getenv("REDIS_HOST"),
-    port=int(os.getenv("REDIS_PORT")),
-    password=os.getenv("REDIS_PASSWORD"),
+    host=settings.redis_host,
+    port=settings.redis_port,
+    password=settings.redis_password,
     decode_responses=True
 )
